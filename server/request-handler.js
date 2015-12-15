@@ -32,34 +32,41 @@ var requestHandler = function(request, response) {
     results: []
   };
 
-
+  var body = '';
 
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   console.log("Serving request type " + request.method + " for url " + request.url);
   if (request.method === 'GET'){
     response.writeHead(statusCode, headers);
+    console.log(result);
     response.end(JSON.stringify(result));
   }else if(request.method === "POST"){
-    statusCode = 201;
-    response.writeHead(statusCode, headers);
     
 
-    request.on('data', function (data) {
-      data = data.toString("utf8")
-      data = JSON.parse(data);
-      console.log(typeof data);
-      // console.log("Here's the body:", typeof body)
-      result.results.push(data);
-      // console.log(result.results)
-    });
 
+    request.on('data', function (data) {
+     body += data;
+      // console.log("Here's the body:", typeof body
+    });
+    request.on('end', function () {
+      statusCode = 201;
+      response.writeHead(statusCode, headers);
+      body = JSON.parse(body);
+      
+
+      result.results.push(body);
+      JSON.stringify(result);
+      console.log("Here's the result:", typeof result);
+      response.end(result);
+    });
+    
     // request.on('end', function () {
     //         var post = qs.parse(body);
     //         // use post['blah'], etc.
     //     });
     
-    response.end(JSON.stringify(result));
+   
   }else{
     statusCode = 404;
     response.writeHead(statusCode, headers);
