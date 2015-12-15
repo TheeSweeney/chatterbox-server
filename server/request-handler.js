@@ -1,3 +1,4 @@
+var qs = require('querystring');
 /*************************************************************
 
 You should implement your request handler function in this file.
@@ -27,15 +28,36 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
+  var result = {
+    results: []
+  };
+
+
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   console.log("Serving request type " + request.method + " for url " + request.url);
   if (request.method === 'GET'){
-    console.log('yo');
     response.writeHead(statusCode, headers);
+    response.end(JSON.stringify(result));
+  }else if(request.method === "POST"){
+    statusCode = 201;
+    response.writeHead(statusCode, headers);
+    var body = '';
+    
+    request.on('data', function (data) {
+      body += data;
+    });
+
+    // request.on('end', function () {
+    //         var post = qs.parse(body);
+    //         // use post['blah'], etc.
+    //     });
+    
     response.end();
   }else{
-    console.log("no")
+    statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end();
   }
   // The outgoing status.
   
@@ -79,4 +101,4 @@ var defaultCorsHeaders = {
   "access-control-max-age": 1000 // Seconds.
 };
 
-exports.requestHandler = requestHandler;
+module.exports = requestHandler;
