@@ -33,6 +33,7 @@ var requestHandler = function(request, response) {
   };
 
 
+
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   console.log("Serving request type " + request.method + " for url " + request.url);
@@ -42,10 +43,15 @@ var requestHandler = function(request, response) {
   }else if(request.method === "POST"){
     statusCode = 201;
     response.writeHead(statusCode, headers);
-    var body = '';
     
+
     request.on('data', function (data) {
-      body += data;
+      data = data.toString("utf8")
+      data = JSON.parse(data);
+      console.log(typeof data);
+      // console.log("Here's the body:", typeof body)
+      result.results.push(data);
+      // console.log(result.results)
     });
 
     // request.on('end', function () {
@@ -53,7 +59,7 @@ var requestHandler = function(request, response) {
     //         // use post['blah'], etc.
     //     });
     
-    response.end();
+    response.end(JSON.stringify(result));
   }else{
     statusCode = 404;
     response.writeHead(statusCode, headers);
