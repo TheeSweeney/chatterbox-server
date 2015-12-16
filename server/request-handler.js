@@ -12,10 +12,13 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+  var result = {
+    results: []
+  };
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
-  //
+ 
   // They include information about both the incoming request, such as
   // headers and URL, and about the outgoing response, such as its status
   // and content.
@@ -28,26 +31,29 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  var result = {
-    results: []
-  };
 
   var body = '';
 
   var statusCode = 200;
   var headers = defaultCorsHeaders;
   console.log("Serving request type " + request.method + " for url " + request.url);
+      console.log("request URL",request.url);
   if (request.method === 'GET'){
-    response.writeHead(statusCode, headers);
-    console.log(result);
-    response.end(JSON.stringify(result));
+
+    if(request.url === '/classes/messages' || request.url === '/classes/room1'){
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(result));
+    }else{
+      response.writeHead(404, headers);
+      response.end();
+    }
   }else if(request.method === "POST"){
     
-
+//hello
 
     request.on('data', function (data) {
      body += data;
-      // console.log("Here's the body:", typeof body
+     //console.log(typeof body, body);
     });
     request.on('end', function () {
       statusCode = 201;
@@ -55,18 +61,15 @@ var requestHandler = function(request, response) {
       body = JSON.parse(body);
       
 
+      //console.log('before',result);
       result.results.push(body);
-      JSON.stringify(result);
-      console.log("Here's the result:", typeof result);
-      response.end(result);
+      var answer = JSON.stringify(result);
+      //console.log('after', typeof result, result);
+
+      response.end(answer);
     });
-    
-    // request.on('end', function () {
-    //         var post = qs.parse(body);
-    //         // use post['blah'], etc.
-    //     });
-    
-   
+
+       
   }else{
     statusCode = 404;
     response.writeHead(statusCode, headers);
@@ -111,7 +114,7 @@ var defaultCorsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 1000 // Seconds.
+  "access-control-max-age": 10 // Seconds.
 };
 
-module.exports = requestHandler;
+module.exports.requestHandler = requestHandler;
